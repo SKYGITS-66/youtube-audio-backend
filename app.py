@@ -1,24 +1,20 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 import yt_dlp
-import os
 
-app = FastAPI()
+app = Flask(__name__)
+CORS(app)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.get("/")
+@app.route("/")
 def home():
-    return {"status": "Render YouTube Audio Extractor API is running!"}
+    return jsonify({"status": "GitHub Codespaces YouTube Backend is running!"})
 
-@app.get("/get-audio")
-def get_youtube_audio(url: str):
+@app.route("/get-audio", methods=["GET"])
+def get_youtube_audio():
+    url = request.args.get("url")
+    if not url:
+        return jsonify({"error": "Parameter 'url' diperlukan"}), 400
+    
     try:
         ydl_opts = {
             'format': 'bestaudio/best',
@@ -30,16 +26,14 @@ def get_youtube_audio(url: str):
             title = info.get('title', 'Unknown')
             
             if not audio_url:
-                raise HTTPException(status_code=400, detail="Gagal mengambil stream audio.")
+                return jsonify({"error": "Gagal mengambil stream audio."}), 400
                 
-            return {
+            return jsonify({
                 "title": title,
                 "audio_url": audio_url
-            }
+            })
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=5000)
