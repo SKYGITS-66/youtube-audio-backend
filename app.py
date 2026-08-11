@@ -7,7 +7,7 @@ CORS(app)
 
 @app.route("/")
 def home():
-    return jsonify({"status": "GitHub Codespaces YouTube Backend is running!"})
+    return jsonify({"status": "GitHub Codespaces YouTube Backend is running with Cookies!"})
 
 @app.route("/get-audio", methods=["GET"])
 def get_youtube_audio():
@@ -19,6 +19,7 @@ def get_youtube_audio():
         ydl_opts = {
             'format': 'bestaudio/best',
             'quiet': True,
+            'cookiefile': 'cookies.txt', # <-- Menambahkan cookies agar tidak terdeteksi bot
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
